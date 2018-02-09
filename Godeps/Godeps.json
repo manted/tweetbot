@@ -1,0 +1,34 @@
+{
+	"ImportPath": "coin-tweet",
+	"GoVersion": "go1.9",
+	"GodepVersion": "v80",
+	"Deps": [
+		{
+			"ImportPath": "github.com/cenkalti/backoff",
+			"Comment": "v1.1.0-4-g2ea60e5",
+			"Rev": "2ea60e5f094469f9e65adb9cd103795b73ae743e"
+		},
+		{
+			"ImportPath": "github.com/dghubble/go-twitter/twitter",
+			"Rev": "c4115fa44a928413e0b857e0eb47376ffde3a61a"
+		},
+		{
+			"ImportPath": "github.com/dghubble/oauth1",
+			"Comment": "v0.4.0-16-g7d51c10",
+			"Rev": "7d51c10e15ca32917b32ce43f6e25840d6951db4"
+		},
+		{
+			"ImportPath": "github.com/dghubble/sling",
+			"Comment": "v1.1.0-6-g80ec33c",
+			"Rev": "80ec33c6152a53edb5545864ca37567b506c4ca5"
+		},
+		{
+			"ImportPath": "github.com/google/go-querystring/query",
+			"Rev": "53e6ce116135b80d037921a7fdd5138cf32d7a8a"
+		},
+		{
+			"ImportPath": "golang.org/x/net/context",
+			"Rev": "ab555f366c4508dbe0802550b1b20c46c5c18aa0"
+		}
+	]
+}

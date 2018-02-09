@@ -1,1 +1,1 @@
-web: tweet
+web: coin-tweet

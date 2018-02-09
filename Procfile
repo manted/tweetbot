@@ -1,1 +1,0 @@
-web: coin-tweet

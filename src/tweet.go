@@ -5,6 +5,9 @@ import (
   "io/ioutil"
   "time"
   "encoding/json"
+  "github.com/dghubble/go-twitter/twitter"
+  "github.com/dghubble/oauth1"
+  "os"
 )
 
 type APIResponse struct {
@@ -55,6 +58,23 @@ func getPriceJson(body []byte) (*APIResponse, error) {
   return &apiResponse, err
 }
 
+func tweet(price string) {
+  consumerKey := os.Getenv("CONSUMER_KEY")
+  consumerSecret  := os.Getenv("CONSUMER_SECRET")
+  accessToken  := os.Getenv("ACCESS_TOKEN")
+  accessSecret := os.Getenv("ACCESS_SECRET")
+
+  config := oauth1.NewConfig(consumerKey, consumerSecret)
+  token := oauth1.NewToken(accessToken, accessSecret)
+  httpClient := config.Client(oauth1.NoContext, token)
+
+  // Twitter client
+  client := twitter.NewClient(httpClient)
+
+  // Send a Tweet
+  client.Statuses.Update("Current Bitcoin price is $" + price, nil)
+}
+
 func main() {
   priceData, requestError := getPrice()
   if requestError != nil {
@@ -65,4 +85,5 @@ func main() {
     return
   }
   fmt.Printf("Price is: $%s\n", priceJson.Bpi.USD.Rate)
+  tweet(priceJson.Bpi.USD.Rate)
 }

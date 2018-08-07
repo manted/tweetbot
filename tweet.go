@@ -23,7 +23,8 @@ type Price struct {
 	Rate string
 }
 
-type PreviousStock struct {
+type Quote struct {
+	Close         float32
 	Change        float32
 	ChangePercent float32
 }
@@ -52,22 +53,8 @@ func getBitcoinPriceJson(body []byte) (*APIResponse, error) {
 	return &apiResponse, err
 }
 
-func getZenStockPrice(client *http.Client) (string, error) {
-	resp, err := client.Get("https://api.iextrading.com/1.0/stock/zen/price")
-	if err != nil {
-		fmt.Printf("Stock Request Error!\n")
-	}
-	defer resp.Body.Close()
-
-	bodyBytes, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		fmt.Printf("Stock Read Error!\n")
-	}
-	return string(bodyBytes), err
-}
-
-func getZenPreviousStockPrice(client *http.Client) ([]byte, error) {
-	resp, err := client.Get("https://api.iextrading.com/1.0/stock/zen/previous")
+func getZenQuote(client *http.Client) ([]byte, error) {
+	resp, err := client.Get("https://api.iextrading.com/1.0/stock/zen/quote?displayPercent=true")
 	if err != nil {
 		fmt.Printf("Previous Stock Request Error!\n")
 	}
@@ -80,8 +67,8 @@ func getZenPreviousStockPrice(client *http.Client) ([]byte, error) {
 	return bodyBytes, err
 }
 
-func getPreviousStockJson(body []byte) (*PreviousStock, error) {
-	previousStock := PreviousStock{}
+func getQuoteJson(body []byte) (*Quote, error) {
+	previousStock := Quote{}
 	err := json.Unmarshal(body, &previousStock)
 	if err != nil {
 		fmt.Printf("Previous Stock Response Parse Error!\n")
@@ -116,18 +103,29 @@ func main() {
 	if jsonError != nil {
 		return
 	}
-	zenStockPrice, stockRequestError := getZenStockPrice(client)
-	if stockRequestError != nil {
-		return
-	}
-	zenPreviousStockData, previousStockequestError := getZenPreviousStockPrice(client)
+
+	zenQuoteData, previousStockequestError := getZenQuote(client)
 	if previousStockequestError != nil {
 		return
 	}
-	zenPreviousStockJson, jsonError := getPreviousStockJson(zenPreviousStockData)
+	zenQuoteJson, jsonError := getQuoteJson(zenQuoteData)
 	if jsonError != nil {
 		return
 	}
-	fmt.Printf("Bitcoin: $%s. ZEN: $%s %.2f (%.2f%%)", priceJson.Bpi.USD.Rate, zenStockPrice, zenPreviousStockJson.Change, zenPreviousStockJson.ChangePercent)
-	tweet(priceJson.Bpi.USD.Rate, zenStockPrice, fmt.Sprintf("%.2f", zenPreviousStockJson.Change), fmt.Sprintf("%.2f", zenPreviousStockJson.ChangePercent))
+	close := zenQuoteJson.Close
+	closeStr := fmt.Sprintf("%.2f", close)
+
+	change := zenQuoteJson.Change
+	changeStr := fmt.Sprintf("%.2f", change)
+	if change >= 0 {
+		changeStr = "+" + changeStr
+	}
+
+	changePercent := zenQuoteJson.ChangePercent
+	changePercentStr := fmt.Sprintf("%.2f", changePercent)
+	if changePercent >= 0 {
+		changePercentStr = "+" + changePercentStr
+	}
+	fmt.Printf("Bitcoin: $%s. ZEN: $%s %s (%s%%)", priceJson.Bpi.USD.Rate, closeStr, changeStr, changePercentStr)
+	tweet(priceJson.Bpi.USD.Rate, closeStr, changeStr, changePercentStr)
 }
